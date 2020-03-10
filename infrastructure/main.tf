@@ -54,8 +54,14 @@ data "azurerm_key_vault_secret" "oauth2_client_secret" {
   key_vault_id = "${data.azurerm_key_vault.ccd_shared_key_vault.id}"
 }
 
+resource azurerm_key_vault_secret "idam_service_secret" {
+  name = "microservicekey-ccd-admin"
+  value = "${data.azurerm_key_vault_secret.idam_service_key.value}"
+  key_vault_id = "${data.azurerm_key_vault.ccd_shared_key_vault.id}"
+}
+
 module "ccd-admin-web" {
-  source = "git@github.com:hmcts/cnp-module-webapp?ref=Bump-JCV"
+  source = "git@github.com:hmcts/cnp-module-webapp?ref=master"
   product = "${local.app_full_name}"
   location = "${var.location}"
   appinsights_location = "${var.location}"
@@ -74,6 +80,7 @@ module "ccd-admin-web" {
 
   app_settings = {
     // Node specific vars
+    WEBSITE_NODE_DEFAULT_VERSION = "~12"
     USE_CSRF_PROTECTION = "${var.use_csrf_protection}"
     SECURITY_REFERRER_POLICY = "${var.security_referrer_policy}"
     SECURE_AUTH_COOKIE_ENABLED = "true"
